@@ -1,0 +1,29 @@
+{
+  "name": "express-cart",
+  "version": "1.0.0",
+  "description": "Toy shopping cart api with no database",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest dist",
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "express-cart"
+  },
+  "author": "Gerard Keiser",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/jest": "^28.1.7",
+    "@types/node": "^18.7.11",
+    "concurrently": "^7.3.0",
+    "nodemon": "^2.0.19",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "express": "^4.18.1"
+  }
+}
