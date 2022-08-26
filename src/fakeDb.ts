@@ -1,3 +1,4 @@
 global.items = [];
 
-export { items };
+// export { items };
+module.exports = items;
