@@ -1,0 +1,3 @@
+global.items = [];
+
+export { items };
