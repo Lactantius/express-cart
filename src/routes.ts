@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as E from "fp-ts/Either";
 import { identity, pipe } from "fp-ts/lib/function";
-//import { Item } from "./types";
+import { Item } from "./types";
 
 const items = require("./fakeDb");
 
