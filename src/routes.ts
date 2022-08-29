@@ -12,25 +12,29 @@ router.get("/", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  const item = pipe(
+  const response: ErrorResponse | SuccessResponse = pipe(
     req.body,
     isInstanceOfItem,
     E.chain(addItem),
-    E.foldW(makeError, identity)
+    E.foldW(identity, identity)
   );
-  return res.json(item);
+  res.statusCode = response.statusCode; /* Mutate state. Why not? */
+  return res.json(response.body);
 });
 
-function addItem(item: Item): E.Either<string, SuccessResponse> {
+function addItem(item: Item): E.Either<ErrorResponse, SuccessResponse> {
   return pipe(
     E.tryCatch(
       () => items.push(item),
-      (err) => `Item ${item} could not be added`
+      (err) => makeError(`Item ${item} could not be added`, 500)
     ),
     E.map(
       () =>
       ({
-        added: item,
+        body: {
+          added: item,
+        },
+        statusCode: 201,
       } as SuccessResponse)
     )
   );
@@ -41,26 +45,34 @@ function addItem(item: Item): E.Either<string, SuccessResponse> {
  */
 
 /* Is there a DRYer way to check if something matches an interface? */
-function isInstanceOfItem(obj: object): E.Either<string, Item> {
+function isInstanceOfItem(obj: object): E.Either<ErrorResponse, Item> {
   const props = ["name", "price"];
   const isItem = typeof obj === "object" && props.every((prop) => prop in obj);
-  return isItem ? E.right(obj as Item) : E.left("Not a valid item");
+  return isItem
+    ? E.right(obj as Item)
+    : E.left(makeError("Not a valid item", 400));
 }
 
-const makeError: (msg: string) => ErrorResponse = (msg: string) => ({
-  error: msg,
-});
+function makeError(msg: string, code: number): ErrorResponse {
+  return { body: { error: msg }, statusCode: code };
+}
 
 /*
  * Interfaces
  */
 
 interface ErrorResponse {
-  error: string;
+  body: {
+    error: string;
+  };
+  statusCode: number;
 }
 
 interface SuccessResponse {
-  [index: string]: Item;
+  body: {
+    [index: string]: Item;
+  };
+  statusCode: number;
 }
 
 export { router };
