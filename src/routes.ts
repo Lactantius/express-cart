@@ -27,13 +27,15 @@ router.post("/", (req, res) => {
 });
 
 router.get("/:name", (req, res) => {
-  const item = items.find((elem) => elem.name === req.params.name);
-  return res.json(item);
+  const item = items.find(
+    (elem) => elem.name.toLowerCase() === req.params.name.toLowerCase()
+  );
+  return res.json({ item: item });
 });
 
-router.patch("/:name", (req, res) => {
-  const response;
-});
+// router.patch("/:name", (req, res) => {
+//   const response;
+// });
 
 /*
  * Helpers

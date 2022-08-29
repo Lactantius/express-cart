@@ -7,8 +7,10 @@ let db = require("./fakeDb");
 const mud = { name: "Mud", price: 2.5 };
 const clouds = { name: "Clouds", price: 400 };
 
-beforeEach(() => {
-  db.push(mud);
+beforeEach(async () => {
+  //db.push(mud);
+  await request(app).post("/items").send(mud);
+  /* For some reason this works, but just pushing to db doesn't */
 });
 
 afterEach(() => {
@@ -17,9 +19,10 @@ afterEach(() => {
 
 describe("GET /items", () => {
   test("Get a list of items", async () => {
+    db.push(mud);
     const res = await request(app).get("/items");
     expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual(mud);
+    expect(res.body).toEqual([mud]);
   });
 });
 
@@ -33,7 +36,7 @@ describe("POST /items", () => {
 
 describe("GET /items/:name", () => {
   test("Get a specific item", async () => {
-    const res = await request(app).get("/items/mud");
+    const res = await request(app).get("/items/Mud");
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({ item: mud });
   });
