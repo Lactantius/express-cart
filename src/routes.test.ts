@@ -30,3 +30,11 @@ describe("POST /items", () => {
     expect(res.body).toEqual({ added: clouds });
   });
 });
+
+describe("GET /items/:name", () => {
+  test("Get a specific item", async () => {
+    const res = await request(app).get("/items/mud");
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ item: mud });
+  });
+});

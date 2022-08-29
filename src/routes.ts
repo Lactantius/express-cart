@@ -3,9 +3,13 @@ import * as E from "fp-ts/Either";
 import { identity, pipe } from "fp-ts/lib/function";
 import { Item } from "./types";
 
-const items = require("./fakeDb");
+const items: Item[] = require("./fakeDb");
 
 const router = Router();
+
+/*
+ * Routes
+ */
 
 router.get("/", (req, res) => {
   return res.json(items);
@@ -21,6 +25,19 @@ router.post("/", (req, res) => {
   res.statusCode = response.statusCode; /* Mutate state. Why not? */
   return res.json(response.body);
 });
+
+router.get("/:name", (req, res) => {
+  const item = items.find((elem) => elem.name === req.params.name);
+  return res.json(item);
+});
+
+router.patch("/:name", (req, res) => {
+  const response;
+});
+
+/*
+ * Helpers
+ */
 
 function addItem(item: Item): E.Either<ErrorResponse, SuccessResponse> {
   return pipe(
@@ -39,10 +56,6 @@ function addItem(item: Item): E.Either<ErrorResponse, SuccessResponse> {
     )
   );
 }
-
-/*
- * Helpers
- */
 
 /* Is there a DRYer way to check if something matches an interface? */
 function isInstanceOfItem(obj: object): E.Either<ErrorResponse, Item> {
