@@ -27,15 +27,14 @@ router.post("/", (req, res) => {
 });
 
 router.get("/:name", (req, res) => {
-  const item = items.find(
-    (elem) => elem.name.toLowerCase() === req.params.name.toLowerCase()
+  const response = pipe(
+    req.params.name,
+    findItem,
+    E.chain(makeResponse(200)),
+    E.foldW(identity, identity)
   );
-  if (item) {
-    return res.json({ item: item });
-  } else {
-    res.statusCode = 404;
-    return res.json({ error: `Item '${req.params.name}' not found` });
-  }
+  res.statusCode = response.statusCode;
+  return res.json(response.body);
 });
 
 // router.patch("/:name", (req, res) => { });
@@ -43,6 +42,21 @@ router.get("/:name", (req, res) => {
 /*
  * Helpers
  */
+
+const makeResponse: (
+  code: number
+) => (item: Item) => E.Either<ErrorResponse, SuccessResponse> =
+  (code) => (item) =>
+    E.right({ body: { item: item }, statusCode: code });
+
+function findItem(name: string): E.Either<ErrorResponse, Item> {
+  const item = items.find(
+    (elem) => elem.name.toLowerCase() === name.toLowerCase()
+  );
+  return item
+    ? E.right(item)
+    : E.left(makeError(`Item '${name}' not found`, 404));
+}
 
 function addItem(item: Item): E.Either<ErrorResponse, SuccessResponse> {
   return pipe(
