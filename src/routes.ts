@@ -30,12 +30,15 @@ router.get("/:name", (req, res) => {
   const item = items.find(
     (elem) => elem.name.toLowerCase() === req.params.name.toLowerCase()
   );
-  return res.json({ item: item });
+  if (item) {
+    return res.json({ item: item });
+  } else {
+    res.statusCode = 404;
+    return res.json({ error: `Item '${req.params.name}' not found` });
+  }
 });
 
-// router.patch("/:name", (req, res) => {
-//   const response;
-// });
+// router.patch("/:name", (req, res) => { });
 
 /*
  * Helpers

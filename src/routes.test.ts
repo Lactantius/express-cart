@@ -40,4 +40,18 @@ describe("GET /items/:name", () => {
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({ item: mud });
   });
+
+  test("Return 404 if item not found", async () => {
+    const res = await request(app).get("/items/graphite");
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toEqual({ error: "Item 'graphite' not found" });
+  });
+});
+
+describe("PATCH /items/:name", () => {
+  test("Edit an item", async () => {
+    const res = await request(app).patch("/items/Mud").send({ price: 4 });
+    expect(res.statusCode.toBe(200));
+    expect(res.body.edited.price).toEqual(4);
+  });
 });
