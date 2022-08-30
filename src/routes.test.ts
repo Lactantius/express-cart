@@ -51,7 +51,16 @@ describe("GET /items/:name", () => {
 describe("PATCH /items/:name", () => {
   test("Edit an item", async () => {
     const res = await request(app).patch("/items/Mud").send({ price: 4 });
-    expect(res.statusCode.toBe(200));
+    expect(res.statusCode).toBe(200);
     expect(res.body.edited.price).toEqual(4);
+  });
+});
+
+describe("DELETE /items/:name", () => {
+  test("Edit an item", async () => {
+    const res = await request(app).delete("/items/Mud");
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ deleted: mud });
+    expect(items.length).toEqual(0);
   });
 });
