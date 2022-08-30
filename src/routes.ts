@@ -39,7 +39,7 @@ router.get("/:name", (req, res) => {
 });
 
 router.patch("/:name", (req, res) => {
-  const item = findItem(req.params.name);
+  const item = pipe(req.params.name, findItem, isInstanceOfItem);
   const response = pipe(
     req.body,
     isInstanceOfItemEdit,
@@ -85,9 +85,9 @@ function findItem(name: string): E.Either<ErrorResponse, Item> {
 }
 
 const editItem: (
-  item: Item
+  item: E.Either<ErrorResponse, Item>
 ) => (edits: ItemEdit) => E.Either<ErrorResponse, Item> = (item) => (edits) =>
-  E.right(Object.assign(item, edits));
+  E.isRight(item) ? E.right(Object.assign(item.right, edits)) : item;
 
 function addItem(item: Item): E.Either<ErrorResponse, Item> {
   return pipe(
@@ -104,16 +104,19 @@ function deleteItem(item: Item): E.Either<ErrorResponse, Item> {
   return pipe(
     E.tryCatch(
       () => items.splice(index, 1),
-      (err) => makeError(`Item ${item} could be be deleted`, 500)
+      (err) => makeError(`Item ${item} could not be deleted`, 500)
     ),
     E.map(() => item)
   );
 }
 
 /* Is there a DRYer way to check if something matches an interface? */
-function isInstanceOfItem(obj: object): E.Either<ErrorResponse, Item> {
+function isInstanceOfItem(
+  obj: object | E.Either<ErrorResponse, Item>
+): E.Either<ErrorResponse, Item> {
   const props = ["name", "price"];
-  const isItem = typeof obj === "object" && props.every((prop) => prop in obj);
+  const isItem =
+    "right" in obj ? hasProps(obj.right, props) : hasProps(obj, props);
   return isItem
     ? E.right(obj as Item)
     : E.left(makeError("Not a valid item", 400));
@@ -129,6 +132,10 @@ function isInstanceOfItemEdit(obj: object): E.Either<ErrorResponse, ItemEdit> {
   return isEdit
     ? E.right(obj as Item)
     : E.left(makeError("Not a valid edit", 400));
+}
+
+function hasProps(obj: object, props: string[]): boolean {
+  return typeof obj === "object" && props.every((prop) => prop in obj);
 }
 
 /*
